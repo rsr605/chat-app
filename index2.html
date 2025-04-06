@@ -1,0 +1,58 @@
+<html>
+<head>
+    <title>Chatting Messenger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <h1 class="font-bold text-teal-600 text-3xl text-center mt-5">Chatting Messenger</h1>
+
+    <div class="text-center mt-3 text-xl font-medium text-slate-600">
+        Chatting Messenger using WebSocket and Node.js
+    </div>
+
+    <form class="flex flex-col items-center mt-5" id="form">
+        <input class="border border-slate-300 bg-white text-slate-800 rounded-md mt-2 p-2 w-1/3 focus:outline-none focus:ring-2 focus:ring-teal-400" type="text" placeholder="Name" id="myname">
+        <input class="border border-slate-300 bg-white text-slate-800 rounded-md mt-2 p-2 w-1/3 focus:outline-none focus:ring-2 focus:ring-teal-400" type="text" placeholder="Message" id="message">
+        <button class="bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-md p-2 mt-3 w-1/3 shadow-md">Send</button>
+    </form>
+
+    <div class="flex flex-col items-center mt-5" id="messageArea"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = io();
+        let form = document.getElementById("form");
+        let myname = document.getElementById("myname");
+        let message = document.getElementById("message");
+        let messageArea = document.getElementById("messageArea");
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            if (message.value.trim() && myname.value.trim()) {
+                socket.emit("send message", {
+                    username: myname.value.trim(),
+                    chat: message.value.trim()
+                });
+                message.value = "";
+            }
+        });
+
+        socket.on("send message", (data) => {
+            let chatBox = document.createElement("div");
+            chatBox.classList.add("bg-white", "p-3", "rounded-lg", "my-2", "w-1/3", "text-left", "shadow-sm", "border", "border-slate-200");
+
+            let name = document.createElement("p");
+            name.classList.add("font-semibold", "text-teal-600");
+            name.textContent = data.username + ":";
+
+            let chatContent = document.createElement("p");
+            chatContent.classList.add("text-slate-700");
+            chatContent.textContent = data.chat;
+
+            chatBox.appendChild(name);
+            chatBox.appendChild(chatContent);
+            messageArea.appendChild(chatBox);
+        });
+    </script>
+</body>
+</html>
